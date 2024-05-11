@@ -7,7 +7,7 @@ from PIL import ImageGrab
 import numpy
 import pyautogui
 import easyocr
-from colorama import Fore
+from colorama import Fore, Back
 from pyscreeze import Point
 from os import environ
 import pathlib
@@ -267,6 +267,31 @@ def click(
     pyautogui.leftClick()
     time.sleep(sleep)
     return True
+
+
+def printRarity():
+    if rarity == "Common":
+        return Fore.LIGHTWHITE_EX
+    elif rarity == "Rare":
+        return Fore.LIGHTBLUE_EX
+    elif rarity == "Epic":
+        return Fore.LIGHTGREEN_EX
+    elif rarity == "Exotic":
+        return Fore.LIGHTMAGENTA_EX
+    elif rarity == "Legendary":
+        return Fore.LIGHTYELLOW_EX
+    return Fore.LIGHTBLACK_EX
+
+
+def printQuality():
+    if wildScore == 0:
+        return Fore.LIGHTRED_EX
+    elif wildScore == 12:
+        return Fore.LIGHTGREEN_EX
+    elif wildScore == 13:
+        return Fore.BLACK
+    else:
+        return Fore.LIGHTBLACK_EX
 
 
 def cleanUp():
@@ -605,7 +630,7 @@ def encounterMode():
             file.write(outputtxt)
 
 
-    print(f"{qualityDict[wildScore]} | {Fore.WHITE}{miscrit}{Fore.LIGHTBLACK_EX} wants to fight.")
+    print(f"{printQuality()}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX} | {printRarity()}{miscrit}{Fore.LIGHTBLACK_EX} wants to fight.")
 
     if (
         LXVI_locateCenterOnScreen(UIImage(PRESETS[current]["strength"]), 0.8)
@@ -649,17 +674,17 @@ def encounterMode():
 
         catchStandard = CONFIG["catch"]["catchStandardDict"][rarity]
         if (miscrit in CONFIG["catch"]["targets"] or (CONFIG["catch"]["targetAll"] and miscrit not in CONFIG["catch"]["blocked"] and wildScore >= catchStandard)):
-            print(f"\033[A{Fore.WHITE}{qualityDict[wildScore]} | {Fore.WHITE}Target miscrit {Fore.YELLOW}{miscrit}{Fore.WHITE} found!{Fore.LIGHTBLACK_EX}")
+            print(f"\033[A{Fore.WHITE}{printQuality()}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX} | {Fore.WHITE}Target miscrit {printRarity()}{miscrit}{Fore.WHITE} found!{Fore.LIGHTBLACK_EX}")
             playSound(pluck)
             catchMode()
             return
         elif (CONFIG["catch"]["ignoreBlockedIfS+"] and wildScore >= 12) or (CONFIG["catch"]["catchF-"] and wildScore == 0):
-            print(f"\033[A{Fore.WHITE}{qualityDict[wildScore]} | {Fore.WHITE}{qualityDict[wildScore]} miscrit {Fore.YELLOW}{miscrit}{Fore.WHITE} found!{Fore.LIGHTBLACK_EX}")
+            print(f"\033[A{Fore.WHITE}{printQuality()}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX} | {Fore.WHITE}{printQuality()}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX} miscrit {printRarity()}{miscrit}{Fore.WHITE} found!{Fore.LIGHTBLACK_EX}")
             playSound(rizz)
             catchMode()
             return        
         elif miscrit not in CONFIG["catch"]["blocked"]:
-            print(f"\033[A{qualityDict[wildScore]} | {Fore.WHITE}This {Fore.YELLOW}{miscrit}{Fore.WHITE} is trash. -p0lbang{Fore.LIGHTBLACK_EX}")
+            print(f"\033[A{printQuality()}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX} | {Fore.WHITE}This {printRarity()}{miscrit}{Fore.WHITE} is trash. -p0lbang{Fore.LIGHTBLACK_EX}")
 
     if not checkActive():
         print("Minimized while in encounter mode, concluding process...")
@@ -675,9 +700,9 @@ def encounterMode():
         pyautogui.leftClick()
         print(
             "\033[A",
-            f"{qualityDict[wildScore]} | "
+            f"{printQuality()}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX} | "
             f"Time: {Fore.CYAN}{(time.perf_counter()-battle_start):05.2f}s{Fore.LIGHTBLACK_EX} | ",
-            f" Avoided {Fore.WHITE}{miscrit}{Fore.LIGHTBLACK_EX}.",
+            f" Avoided {printRarity()}{miscrit}{Fore.LIGHTBLACK_EX}.",
             sep="",
         )
 
@@ -730,9 +755,9 @@ def encounterMode():
             if LXVI_locateCenterOnScreen(UIImage("closebtn.png"), 0.85) is not None:
                 print(
                     "\033[A",
-                    f"{qualityDict[wildScore]} | "
+                    f"{printQuality()}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX} | "
                     f"Time: {Fore.CYAN}{(time.perf_counter()-battle_start):05.2f}s{Fore.LIGHTBLACK_EX} | ",
-                    f"Defeated {Fore.WHITE}{miscrit}{Fore.LIGHTBLACK_EX}.",
+                    f"Defeated {printRarity()}{miscrit}{Fore.LIGHTBLACK_EX}.",
                     sep="",
                 )
                 return
@@ -760,9 +785,9 @@ def waitFight():
             thread_keybfight.stop()
             print(
                 "\033[A",
-                f"{qualityDict[wildScore]} | "
+                f"{printQuality()}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX} | "
                 f"Time: {Fore.CYAN}{(time.perf_counter()-battle_start):05.2f}s{Fore.LIGHTBLACK_EX} | ",
-                f"Defeated {Fore.WHITE}{miscrit}{Fore.LIGHTBLACK_EX}.",
+                f"Defeated {printRarity()}{miscrit}{Fore.LIGHTBLACK_EX}.",
                 sep="",
             )
             return
@@ -797,6 +822,7 @@ def keybFight(key: Key | KeyCode):
 def catchMode():
     global miscrit, caught, current
     action = 1
+    catchAttempted = False
 
     while (toClick := LXVI_locateCenterOnScreen(UIImage("run.png"), 0.99)) is None:
         pass
@@ -824,22 +850,27 @@ def catchMode():
     while not caught:
         if not checkActive():
             print(
-                f"Minimized while trying to catch {Fore.YELLOW}{miscrit}{Fore.LIGHTBLACK_EX}, concluding process..."
+                f"Minimized while trying to catch {printRarity()}{miscrit}{Fore.LIGHTBLACK_EX}, concluding process..."
             )
             conclude()
 
         if (
-            LXVI_locateCenterOnScreen(UIImage("miscripedia.png"), confidence=0.8)
+            LXVI_locateCenterOnScreen(UIImage("miscripedia.png"), 0.8)
             is None
         ):
             if LXVI_locateCenterOnScreen(UIImage("closebtn.png"), 0.85) is not None:
-                print(
-                    f"\033[A{Fore.RED}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX} | {Fore.WHITE}{miscrit}{Fore.LIGHTBLACK_EX} died at {Fore.RED}{chance}%{Fore.LIGHTBLACK_EX} catch rate."
-                )
+                if catchAttempted:
+                    print(
+                        f"\033[A{Fore.RED}{printQuality()}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX}{Fore.LIGHTBLACK_EX} | {Back.RED}            {Back.RESET} |   Failed {printRarity()}{miscrit}{Fore.LIGHTBLACK_EX} capture at {Fore.RED}{chance}%{Fore.LIGHTBLACK_EX}"
+                    )
+                else:
+                    print(
+                        f"\033[A{Fore.RED}{printQuality()}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX}{Fore.LIGHTBLACK_EX} | {Back.RED}            {Back.RESET} |    Slain {printRarity()}{miscrit}{Fore.LIGHTBLACK_EX} at {Fore.RED}{chance}%{Fore.LIGHTBLACK_EX}"
+                    )
 
                 return
 
-        if LXVI_locateCenterOnScreen(UIImage("currentMiscrit.png"), 0.80) is None:
+        if LXVI_locateCenterOnScreen(UIImage("currentMiscrit.png"), 0.80) is None and LXVI_locateCenterOnScreen(UIImage("miscripedia.png"), 0.8) is not None:
             getCurrentMiscrit()
             current = updateCurrentMiscrit()
 
@@ -869,6 +900,7 @@ def catchMode():
                     useSkill(toClick, PRESETS[current]["poke"])
             elif action == 2:
                 click(UIImage("catchbtn.png"), 0.75, 6, 0)
+                catchAttempted = True
                 if (
                     LXVI_locateCenterOnScreen(UIImage("catchSuccess.png"), 0.9)
                     is not None
@@ -878,13 +910,10 @@ def catchMode():
                 else:
                     action = 3
             elif action == 3:
-                print(
-                    f"\033[A{Fore.RED}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX} | Failed to catch {Fore.WHITE}{miscrit}{Fore.LIGHTBLACK_EX}.     "
-                )
                 useSkill(toClick, PRESETS[current]["main"])
 
     print(
-        f"\033[A{Fore.GREEN}{qualityDict[wildScore]}{Fore.WHITE} | {Fore.YELLOW}{miscrit}{Fore.WHITE} has been caught at {Fore.GREEN}{chance}%. {Fore.LIGHTBLACK_EX}"
+        f"\033[A{Fore.GREEN}{printQuality()}{qualityDict[wildScore]}{Fore.LIGHTBLACK_EX} | {Back.GREEN}            {Back.RESET} |   Caught {printRarity()}{miscrit}{Fore.LIGHTBLACK_EX} at {Fore.GREEN}{chance}%. {Fore.LIGHTBLACK_EX}"
     )
     click(UIImage("catchSkip.png"), 0.9, 2, 0)
     click(UIImage("closebtn.png"), 0.85, 2, 0)
