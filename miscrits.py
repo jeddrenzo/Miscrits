@@ -523,9 +523,9 @@ def searchMode():
 
                 LXVI_moveTo(toClick, 0.1)
                 if LXVI_locateCenterOnScreen(UIImage("searchCD.png"), 0.9) is not None:
+                    time.sleep(1)
                     while (
-                        LXVI_locateCenterOnScreen(UIImage("searchCD.png"), 0.9)
-                        is not None
+                        LXVI_locateCenterOnScreen(UIImage("searchCD.png"), 0.9) is not None and LXVI_locateCenterOnScreen(UIImage("search.png"), 0.75) is None
                     ):
                         pass
                 pyautogui.leftClick()

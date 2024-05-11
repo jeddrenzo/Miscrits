@@ -46,8 +46,7 @@
             "fa_defilio": ["a4_blight", "a4_typha4", "a4_minis"],
             "fb_bflue": ["a4_blight2", "a4_log", "a4_stone", "a4_shrub3"],
                 // "fb_bflue": ["a4_blight2", "a4_blight2R"],
-            // "fa_dtreemur": ["a2_deadcorner","a2_chopscorner"],
-            "fb_dtreemurSAT": ["a2_dead106","a2_dead106L"],
+            "fb_dtreemurSAT": ["a2_dead106","a2_chopscorner"],
                 
     //Mount Gemma
             "ga_luna": ["b1_stone", "b1_typha", "b1_potrock", "b1_mound1"],
